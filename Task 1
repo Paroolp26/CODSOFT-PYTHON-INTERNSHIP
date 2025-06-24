@@ -1,0 +1,128 @@
+import json
+from datetime import datetime
+
+class Task:
+    def __init__(self, title, description, due_date):
+        self.title = title
+        self.description = description
+        self.due_date = due_date
+        self.created_on = datetime.now().strftime("%Y-%m-%d %H:%M")
+        self.completed = False
+
+    def mark_complete(self):
+        self.completed = True
+
+    def to_dict(self):
+        return {
+            "title": self.title,
+            "description": self.description,
+            "due_date": self.due_date,
+            "created_on": self.created_on,
+            "completed": self.completed
+        }
+
+class ToDoList:
+    def __init__(self):
+        self.tasks = []
+
+    def add_task(self):
+        print("\n--- Add New Task ---")
+        title = input("Enter task title: ")
+        description = input("Enter task description: ")
+        due_date = input("Enter due date (YYYY-MM-DD): ")
+        task = Task(title, description, due_date)
+        self.tasks.append(task)
+        print("✅ Task added successfully!")
+
+    def show_tasks(self):
+        print("\n--- Task List ---")
+        if not self.tasks:
+            print("No tasks available.")
+            return
+        for index, task in enumerate(self.tasks, start=1):
+            status = "Done ✅" if task.completed else "Pending ⏳"
+            print(f"\nTask #{index}")
+            print(f"Title       : {task.title}")
+            print(f"Description : {task.description}")
+            print(f"Due Date    : {task.due_date}")
+            print(f"Created On  : {task.created_on}")
+            print(f"Status      : {status}")
+
+    def complete_task(self):
+        self.show_tasks()
+        try:
+            task_number = int(input("\nEnter task number to mark as complete: "))
+            if 1 <= task_number <= len(self.tasks):
+                self.tasks[task_number - 1].mark_complete()
+                print("✅ Task marked as complete!")
+            else:
+                print("❌ Invalid task number.")
+        except ValueError:
+            print("❌ Please enter a valid number.")
+
+    def delete_task(self):
+        self.show_tasks()
+        try:
+            task_number = int(input("\nEnter task number to delete: "))
+            if 1 <= task_number <= len(self.tasks):
+                del self.tasks[task_number - 1]
+                print("🗑️ Task deleted successfully!")
+            else:
+                print("❌ Invalid task number.")
+        except ValueError:
+            print("❌ Please enter a valid number.")
+
+    def save_tasks(self, filename="tasks.json"):
+        with open(filename, "w") as f:
+            json.dump([task.to_dict() for task in self.tasks], f, indent=4)
+        print("💾 Tasks saved successfully.")
+
+    def load_tasks(self, filename="tasks.json"):
+        try:
+            with open(filename, "r") as f:
+                task_data = json.load(f)
+                self.tasks = [self.dict_to_task(td) for td in task_data]
+            print("📂 Tasks loaded successfully.")
+        except FileNotFoundError:
+            print("⚠️ No previous data found.")
+
+    def dict_to_task(self, data):
+        task = Task(data["title"], data["description"], data["due_date"])
+        task.created_on = data["created_on"]
+        task.completed = data["completed"]
+        return task
+
+def main():
+    todo = ToDoList()
+    todo.load_tasks()
+
+    while True:
+        print("\n--- TO-DO LIST MENU ---")
+        print("1. Add Task")
+        print("2. Show Tasks")
+        print("3. Mark Task as Complete")
+        print("4. Delete Task")
+        print("5. Save Tasks")
+        print("6. Exit")
+
+        choice = input("Choose an option (1-6): ")
+
+        if choice == '1':
+            todo.add_task()
+        elif choice == '2':
+            todo.show_tasks()
+        elif choice == '3':
+            todo.complete_task()
+        elif choice == '4':
+            todo.delete_task()
+        elif choice == '5':
+            todo.save_tasks()
+        elif choice == '6':
+            todo.save_tasks()
+            print("👋 Exiting To-Do List. Have a productive day!")
+            break
+        else:
+            print("❌ Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
