@@ -1,0 +1,49 @@
+import random
+import string
+
+def get_password_length():
+    while True:
+        try:
+            length = int(input("🔢 Enter desired password length (min 4): "))
+            if length < 4:
+                print("⚠️ Password must be at least 4 characters long.")
+            else:
+                return length
+        except ValueError:
+            print("⚠️ Please enter a valid number.")
+
+def get_complexity_choice():
+    print("\nChoose password complexity:")
+    print("1. Only Letters")
+    print("2. Letters + Numbers")
+    print("3. Letters + Numbers + Symbols")
+    
+    while True:
+        choice = input("Enter your choice (1/2/3): ")
+        if choice in ['1', '2', '3']:
+            return choice
+        print("⚠️ Invalid choice. Please enter 1, 2, or 3.")
+
+def generate_password(length, complexity):
+    if complexity == '1':
+        characters = string.ascii_letters
+    elif complexity == '2':
+        characters = string.ascii_letters + string.digits
+    else:
+        characters = string.ascii_letters + string.digits + string.punctuation
+
+    password = ''.join(random.choice(characters) for _ in range(length))
+    return password
+
+def main():
+    print("🔐 Password Generator\n")
+
+    length = get_password_length()
+    complexity = get_complexity_choice()
+    password = generate_password(length, complexity)
+
+    print("\n✅ Your secure password is:")
+    print(f"🔒 {password}")
+
+if __name__ == "__main__":
+    main()
